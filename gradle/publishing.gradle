@@ -1,0 +1,202 @@
+// Create a custom POM file for our artifacts
+// See: https://maven.apache.org/pom.html
+def pomConfig = {
+    resolveStrategy = Closure.DELEGATE_FIRST
+    name project.name
+    description project.description
+    url "https://github.com/jaredsburrows/android-gradle-java-library-template"
+
+    issueManagement {
+        system "github"
+        url "https://github.com/jaredsburrows/android-gradle-java-library-template/issues"
+    }
+
+    scm {
+        url "https://github.com/jaredsburrows/android-gradle-java-library-template"
+        connection "scm:https://github.com/jaredsburrows/android-gradle-java-library-template"
+        developerConnection "scm:git@github.com:jaredsburrows/android-gradle-java-library-template.git"
+    }
+
+    licenses {
+        license {
+            name "The Apache Software License, Version 2.0"
+            url "http://www.apache.org/licenses/LICENSE-2.0.txt"
+            distribution "repo"
+        }
+    }
+
+    developers {
+        developer {
+            id "jaredsburrows"
+            name "Jared Burrows"
+            email "jaredsburrows@gmail.com"
+        }
+    }
+}
+
+// This DSL is from the "maven-publish" plugin
+// See: https://docs.gradle.org/current/userguide/publishing_maven.html
+publishing {
+    // Publish to local repository
+    repositories {
+        mavenLocal() // ~/.m2
+    }
+
+    publications {
+        // Create tasks based on the application build variant (productFlavor + buildType = variant)
+        (android.hasProperty("applicationVariants")
+                ? android."applicationVariants"
+                : android."libraryVariants").all { variant ->
+
+            def variantName = variant.name.capitalize()
+
+            /**
+             * Generate Jar of Java sources.
+             */
+            def jarSourceTask = task("jar${variantName}Sources", type: Jar) {
+                description = "Generates Java Sources for ${variantName}."
+                group = "artifact"
+                classifier = "sources"
+                from variant.javaCompile.source
+            }
+            jarSourceTask.dependsOn variant.javaCompile
+            artifacts.add("archives", jarSourceTask)
+
+            /**
+             * Generate Javadocs.
+             */
+            def javadocTask = task("generate${variantName}Javadocs", type: Javadoc) {
+                description = "Generates Javadoc for ${variantName}."
+                source = variant.javaCompile.source
+                classpath += files(variant.javaCompile.classpath.files)
+                classpath += files(android.getBootClasspath().join(File.pathSeparator))
+                classpath += files("${android.sdkDirectory}/platforms/${android.compileSdkVersion}/android.jar")
+                exclude "**/R.java"
+            }
+            javadocTask.dependsOn variant.javaCompile
+
+            /**
+             * Generate Jar of Javadocs.
+             */
+            def jarJavadocTask = task("jar${variantName}Javadocs", type: Jar) {
+                description = "Generate Javadoc Jar for ${variantName}."
+                group = "artifact"
+                classifier = "javadoc"
+                from javadocTask.destinationDir
+            }
+            jarJavadocTask.dependsOn javadocTask
+            artifacts.add("archives", jarJavadocTask)
+
+            // Create custom publication based on the "variant"
+            // "Debug" and "Release" variants
+            "${variantName}"(MavenPublication) {
+                artifact "${project.buildDir}/outputs/aar/${project.name}-${variant.name}.aar"
+                artifact jarSourceTask
+                artifact jarJavadocTask
+
+                // Add dependencies to POM - normal Java projects use "from components.java"
+                pom {
+                    withXml {
+                        def root = asNode()
+
+                        // List dependencies
+                        def dependenciesNode = root.appendNode("dependencies")
+                        configurations.compile.allDependencies.each {
+                            def dependencyNode = dependenciesNode.appendNode("dependency")
+                            dependencyNode.appendNode("groupId", it.group)
+                            dependencyNode.appendNode("artifactId", it.name)
+                            dependencyNode.appendNode("version", it.version)
+                        }
+
+                        // Add parent POM information
+                        root.children().last() + pomConfig
+                    }
+                }
+            }
+        }
+    }
+}
+//publish.dependsOn assembleRelease, sourcesJar, javadocJar, testsJar, reportsZip
+//publish.dependsOn "generatePomFileForMavenPublication"
+
+// See: https://docs.gradle.org/current/dsl/org.gradle.plugins.signing.Sign.html
+signing {
+    required { project.version.contains("SNAPSHOT") && gradle.taskGraph.hasTask("uploadArchives") }
+    sign configurations.archives
+}
+
+// This DSL is from the "maven" plugin
+// See: https://docs.gradle.org/current/userguide/maven_plugin.html
+// The artifacts are automatically added via "artifacts.add("archives", jarJavadocTask)"
+uploadArchives {
+    repositories {
+        mavenDeployer {
+
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+            repository(url: "repo") {}
+            snapshotRepository(url: "repo-snapshot") {}
+
+            pom {
+                groupId = project.group     // project.group = "burrows.apps"
+                artifactId = "template"     // project.name = android-gradle-java-library-template
+                version = project.version   // project.version = "1.0"
+            }
+        }
+    }
+}
+
+/**
+ * Publish 'archives' artifacts into the local Maven repository.
+ * To use the local maven repository, located here: "~/.m2", setup your repository:
+ */
+// See: https://docs.gradle.org/current/dsl/org.gradle.api.tasks.Upload.html
+task installArchives(type: Upload) {
+
+    group = "Upload"
+    description = "Installs the ':archives' artifacts into the local Maven repository."
+
+    configuration = configurations.archives
+
+    repositories {
+        mavenInstaller {
+            pom {
+                groupId = project.group     // project.group = "burrows.apps"
+                artifactId = "template"     // project.name = android-gradle-java-library-template
+                version = project.version   // project.version = "1.0"
+            }
+        }
+    }
+}
+
+// Setup our build to publish to Jfrog Bintray - "jcenter()"
+bintray {
+    // Add these variables to your local "gradle.properties" or in your "~/.gradle/gradle.properties"
+    user = project.hasProperty("bintrayUsername") ? project.property("bintrayUsername") : ""
+    key = project.hasProperty("bintrayApiKey") ? project.property("bintrayApiKey") : ""
+    publications = ["Release"] // "Debug" and "Release" variants generated by the
+    publish = true
+    pkg {
+        repo = "maven"
+        name = project.name
+        desc = project.description
+        websiteUrl = "https://github.com/jaredsburrows/android-gradle-java-library-template"
+        issueTrackerUrl = "https://github.com/jaredsburrows/android-gradle-java-library-template/issues"
+        vcsUrl = "https://github.com/jaredsburrows/android-gradle-java-library-template.git"
+        licenses = ["Apache-2.0"]
+        labels = ["burrows", "apps", "android", "template", "library"]
+        version {
+            name = project.version
+            desc = project.description
+            mavenCentralSync {
+                sync = false
+                // Add these variables to your local "gradle.properties" or in your "~/.gradle/gradle.properties"
+                user = project.hasProperty("sonatypeUsername") ? project.property("sonatypeUsername") : ""
+                password = project.hasProperty("sonatypeUsername") ? project.property("sonatypePassword") : ""
+                close = "1"
+            }
+        }
+    }
+}
+//bintrayUpload.dependsOn assembleRelease, sourcesJar, javadocJar, testsJar, reportsZip
+//bintrayUpload.dependsOn "generatePomFileForMavenPublication"
