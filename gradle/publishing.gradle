@@ -1,3 +1,8 @@
+apply plugin: "maven"
+apply plugin: "maven-publish"
+apply plugin: "signing"
+apply plugin: "com.jfrog.bintray"
+
 // Create a custom POM file for our artifacts
 // See: https://maven.apache.org/pom.html
 def pomConfig = {
