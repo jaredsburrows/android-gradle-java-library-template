@@ -7,7 +7,7 @@ buildscript {
 
     dependencies {
         classpath "com.gradle:build-scan-plugin:1.0"
-        classpath "com.android.tools.build:gradle:2.2.0"
+        classpath "com.android.tools.build:gradle:2.2.2"
         classpath "com.getkeepsafe.dexcount:dexcount-gradle-plugin:0.6.1"
         classpath "org.kt3k.gradle.plugin:coveralls-gradle-plugin:2.6.3"
         classpath "com.github.ben-manes:gradle-versions-plugin:0.13.0"
@@ -61,13 +61,13 @@ configurations {
 
 dependencies {
     // Android Support Library for AppCompat
-    compile "com.android.support:appcompat-v7:24.2.1"
+    compile "com.android.support:appcompat-v7:25.0.0"
 
     // Android Support Library for the CardView
-    compile "com.android.support:cardview-v7:24.2.1"
+    compile "com.android.support:cardview-v7:25.0.0"
 
     // Android Support Library for the RecyclerView
-    compile "com.android.support:recyclerview-v7:24.2.1"
+    compile "com.android.support:recyclerview-v7:25.0.0"
 
     // Google Play Services
     compile "com.google.android.gms:play-services-ads:9.4.0"
