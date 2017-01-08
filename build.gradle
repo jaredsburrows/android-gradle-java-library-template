@@ -6,7 +6,7 @@ buildscript {
     }
 
     dependencies {
-        classpath "com.gradle:build-scan-plugin:1.0"
+        classpath "com.gradle:build-scan-plugin:1.3"
         classpath "com.android.tools.build:gradle:2.2.2"
         classpath "com.getkeepsafe.dexcount:dexcount-gradle-plugin:0.6.1"
         classpath "org.kt3k.gradle.plugin:coveralls-gradle-plugin:2.6.3"
@@ -24,20 +24,23 @@ repositories {
 group = "burrows.apps"
 version = "1.0"
 
+apply from: rootProject.file("gradle/buildScan.gradle")
 apply plugin: "com.android.library"
 apply plugin: "com.getkeepsafe.dexcount"
 apply plugin: "com.github.ben-manes.versions"
-apply from: rootProject.file("gradle/buildScan.gradle")
 apply from: rootProject.file("gradle/compile.gradle")
-apply from: rootProject.file("gradle/android.gradle")
 apply from: rootProject.file("gradle/codeQuality.gradle")
 apply from: rootProject.file("gradle/publishing.gradle")
 
 android {
+    compileSdkVersion 25
+    buildToolsVersion "25"
+
     defaultConfig {
         versionCode 1
         versionName "1.0"
-
+        minSdkVersion 11
+        targetSdkVersion 25
         consumerProguardFile "consumer-proguard-rules.pro"
     }
 
@@ -46,6 +49,42 @@ android {
             minifyEnabled false
             proguardFile getDefaultProguardFile("proguard-android-optimize.txt")
             proguardFile "proguard-rules.pro"
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
+    }
+
+    dexOptions {
+        preDexLibraries !Boolean.valueOf(System.getenv("TRAVIS"))
+    }
+
+    lintOptions {
+        textReport true
+        textOutput "stdout"
+        checkAllWarnings true
+        warningsAsErrors true
+        showAll true
+        explainIssues true
+        disable "UnusedResources",              // Unused will be removed on release
+            "IconExpectedSize",             // Using the material icons provided from Google
+            "GoogleAppIndexingApiWarning",  // We might want to index our app later
+            "InvalidPackage",               // Butterknife, Okio and Realm
+            "ResourceType",                 // Annotation binding
+            "GradleDependency",
+            "NewerVersionAvailable",
+            "PropertyEscape"                // CI issue with sdk.dir in local.properties
+    }
+
+    testOptions {
+        unitTests {
+            all {
+                jacoco {
+                    includeNoLocationClasses = true
+                }
+            }
         }
     }
 }

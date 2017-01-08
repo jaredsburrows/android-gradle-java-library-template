@@ -6,6 +6,7 @@ apply plugin: "com.jfrog.bintray"
 // Create a custom POM file for our artifacts
 // See: https://maven.apache.org/pom.html
 def pomConfig = {
+    //noinspection UnnecessaryQualifiedReference
     resolveStrategy = Closure.DELEGATE_FIRST
     name project.name
     description project.description
@@ -49,9 +50,7 @@ publishing {
 
     publications {
         // Create tasks based on the application build variant (productFlavor + buildType = variant)
-        (android.hasProperty("applicationVariants")
-                ? android."applicationVariants"
-                : android."libraryVariants").all { variant ->
+        android.libraryVariants.all { variant ->
 
             def variantName = variant.name.capitalize()
 
