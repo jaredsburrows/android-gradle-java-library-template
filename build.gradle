@@ -1,24 +1,25 @@
 buildscript {
     repositories {
-        maven {
-            url "https://plugins.gradle.org/m2/"
-        }
+        maven { url "https://plugins.gradle.org/m2/" }
     }
 
     dependencies {
-        classpath "com.gradle:build-scan-plugin:1.3"
-        classpath "com.android.tools.build:gradle:2.2.2"
-        classpath "com.getkeepsafe.dexcount:dexcount-gradle-plugin:0.6.1"
-        classpath "org.kt3k.gradle.plugin:coveralls-gradle-plugin:2.6.3"
-        classpath "com.github.ben-manes:gradle-versions-plugin:0.13.0"
+        classpath "com.gradle:build-scan-plugin:1.4"
+        classpath "com.android.tools.build:gradle:2.2.3"
+        classpath "com.getkeepsafe.dexcount:dexcount-gradle-plugin:0.6.2"
+        classpath "org.kt3k.gradle.plugin:coveralls-gradle-plugin:2.8.1"
+        classpath "com.github.ben-manes:gradle-versions-plugin:0.14.0"
         classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.1"
     }
 }
 
 repositories {
-    maven {
-        url "https://plugins.gradle.org/m2/"
-    }
+    maven { url "https://plugins.gradle.org/m2/" }
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = "3.4"
+    distributionType = Wrapper.DistributionType.ALL
 }
 
 group = "burrows.apps"
@@ -34,7 +35,7 @@ apply from: rootProject.file("gradle/publishing.gradle")
 
 android {
     compileSdkVersion 25
-    buildToolsVersion "25"
+    buildToolsVersion "25.0.2"
 
     defaultConfig {
         versionCode 1
@@ -62,56 +63,48 @@ android {
     }
 
     lintOptions {
-        textReport true
         textOutput "stdout"
         checkAllWarnings true
         warningsAsErrors true
-        showAll true
-        explainIssues true
-        disable "UnusedResources",              // Unused will be removed on release
-            "IconExpectedSize",             // Using the material icons provided from Google
-            "GoogleAppIndexingApiWarning",  // We might want to index our app later
-            "InvalidPackage",               // Butterknife, Okio and Realm
-            "ResourceType",                 // Annotation binding
-            "GradleDependency",
-            "NewerVersionAvailable",
-            "PropertyEscape"                // CI issue with sdk.dir in local.properties
+        disable "UnusedResources"              // Unused will be removed on release
+        disable "IconExpectedSize"             // Using the material icons provided from Google
+        disable "GoogleAppIndexingApiWarning"  // We might want to index our app later
+        disable "InvalidPackage"               // Butterknife, Okio and Realm
+        disable "ResourceType"                 // Annotation binding
+        disable "GradleDependency"
+        disable "NewerVersionAvailable"
     }
 
-    testOptions {
-        unitTests {
-            all {
-                jacoco {
-                    includeNoLocationClasses = true
-                }
+    testOptions.unitTests {
+        all {
+            jacoco {
+                includeNoLocationClasses = true
             }
         }
     }
 }
 
 // https://github.com/tbroyer/gradle-errorprone-plugin/issues/18
-configurations {
-    all {
-        resolutionStrategy {
-            force "com.google.errorprone:error_prone_core:2.0.5"
-        }
+configurations.all {
+    resolutionStrategy {
+        force "com.google.errorprone:error_prone_core:2.0.5"
     }
 }
 
 dependencies {
     // Android Support Library for AppCompat
-    compile "com.android.support:appcompat-v7:25.0.0"
+    compile "com.android.support:appcompat-v7:25.2.0"
 
     // Android Support Library for the CardView
-    compile "com.android.support:cardview-v7:25.0.0"
+    compile "com.android.support:cardview-v7:25.2.0"
 
     // Android Support Library for the RecyclerView
-    compile "com.android.support:recyclerview-v7:25.0.0"
+    compile "com.android.support:recyclerview-v7:25.2.0"
 
     // Google Play Services
-    compile "com.google.android.gms:play-services-ads:9.4.0"
-    compile "com.google.android.gms:play-services-basement:9.4.0"
-    compile "com.google.android.gms:play-services-base:9.4.0"
+    compile "com.google.android.gms:play-services-ads:10.2.0"
+    compile "com.google.android.gms:play-services-basement:10.2.0"
+    compile "com.google.android.gms:play-services-base:10.2.0"
 
     // Junit
     testCompile "junit:junit:4.12"
@@ -134,6 +127,6 @@ dependencies {
     testCompile "org.khronos:opengl-api:gl1.1-android-2.1_r1"
 
     // AssertJ
-    testCompile "com.android.support:support-annotations:24.2.1"
+    testCompile "com.android.support:support-annotations:25.2.0"
     testCompile "com.squareup.assertj:assertj-android:1.1.1"
 }
