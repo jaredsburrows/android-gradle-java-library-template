@@ -23,7 +23,6 @@ Gradle + Android Studio + Robolectric + Espresso + Mockito + EasyMock/PowerMock 
 |---|---|
 | [JUnit](https://github.com/junit-team/junit) | Java Unit Testing Framework |
 | [AssertJ](http://joel-costigliola.github.io/assertj/) | Matchers for Unit Tests |
-| [Robolectric](https://github.com/robolectric/robolectric) | Unit Testing Framework |
 | [Mockito](https://github.com/mockito/mockito) | Mocking Framework |
 
 ####Reporting Plugins:
