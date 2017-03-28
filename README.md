@@ -18,26 +18,25 @@ Gradle + Android Studio + Robolectric + Espresso + Mockito + EasyMock/PowerMock 
 | [Android Studio](http://tools.android.com/recent) or | Official IDE |
 | [Intellij](https://www.jetbrains.com/idea/download/) | Intellij IDE |
 
-####Testing Frameworks:
+#### Testing Frameworks:
 |Name|Description|
 |---|---|
 | [JUnit](https://github.com/junit-team/junit) | Java Unit Testing Framework |
 | [AssertJ](http://joel-costigliola.github.io/assertj/) | Matchers for Unit Tests |
 | [Mockito](https://github.com/mockito/mockito) | Mocking Framework |
 
-####Reporting Plugins:
+#### Reporting Plugins:
 |Name|Description|
 |---|---|
 | [JaCoCo](http://www.eclemma.org/jacoco/) | JaCoCo Test Coverage |
 | [Coveralls](https://coveralls.io/) | Hosts test reports published from TravisCI |
 
-####Continuous Integration:
+#### Continuous Integration:
 |Name|Description|
 |---|---|
 | [TravisCI](http://docs.travis-ci.com/user/languages/android/) | Build Server(Builds, Tests, Publishes reports to Coveralls) |
 
 # Getting Started:
-
 ## `Android Studio` or `Intellij` Support(Simple):
  - **Import/Open this project with Android Studio/Intellij(click on `build.gradle`)**
 
