@@ -34,12 +34,7 @@ public final class PlayServicesUtils {
         } else {
             final Dialog dialog = availability.getErrorDialog(activity, result, 0);
             // Let user use the application
-            dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
-                @Override
-                public void onCancel(final DialogInterface dialog) {
-                    dialog.cancel();
-                }
-            });
+            dialog.setOnCancelListener(d -> d.cancel());
             dialog.show();
         }
         return false;
