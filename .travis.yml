@@ -3,11 +3,11 @@ language: android
 jdk: oraclejdk8
 
 install:
-  - echo y | android update sdk -u -a -t tools
-  - echo y | android update sdk -u -a -t platform-tools
-  - echo y | android update sdk -u -a -t android-28
-  - echo y | android update sdk -u -a -t extra-google-m2repository
-  - echo y | android update sdk -u -a -t extra-android-m2repository
+  - yes | sdkmanager "tools" &>/dev/null
+  - yes | sdkmanager "platform-tools" &>/dev/null
+  - yes | sdkmanager "platforms;android-28" &>/dev/null
+  - yes | sdkmanager --update &>/dev/null
+  - yes | sdkmanager --licenses &>/dev/null
 
 script: ./gradlew clean assembleDebug --scan -s
 
