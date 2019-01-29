@@ -1,47 +1,39 @@
 buildscript {
     repositories {
-        maven { url "https://plugins.gradle.org/m2/" }
+        google()
+        gradlePluginPortal()
     }
 
     dependencies {
-        classpath "com.gradle:build-scan-plugin:1.4"
-        classpath "com.android.tools.build:gradle:2.2.3"
-        classpath "com.getkeepsafe.dexcount:dexcount-gradle-plugin:0.6.2"
-        classpath "org.kt3k.gradle.plugin:coveralls-gradle-plugin:2.8.1"
-        classpath "com.github.ben-manes:gradle-versions-plugin:0.14.0"
-        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3"
+        classpath "com.gradle:build-scan-plugin:2.1"
+        classpath "com.android.tools.build:gradle:3.3.0"
+        classpath "com.getkeepsafe.dexcount:dexcount-gradle-plugin:0.8.5"
+        classpath "com.github.ben-manes:gradle-versions-plugin:0.20.0"
+        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4"
     }
 }
 
 repositories {
-    maven { url "https://plugins.gradle.org/m2/" }
+    google()
+    gradlePluginPortal()
 }
 
-task wrapper(type: Wrapper) {
-    gradleVersion = "3.4"
-    distributionType = Wrapper.DistributionType.ALL
-}
-
-group = "burrows.apps"
-version = "1.0"
-
-apply from: rootProject.file("gradle/buildScan.gradle")
+apply from: "gradle/scan.gradle"
 apply plugin: "com.android.library"
 apply plugin: "com.getkeepsafe.dexcount"
 apply plugin: "com.github.ben-manes.versions"
-apply from: rootProject.file("gradle/compile.gradle")
-apply from: rootProject.file("gradle/codeQuality.gradle")
-apply from: rootProject.file("gradle/publishing.gradle")
+apply from: "gradle/compile.gradle"
+//apply from: "gradle/quality.gradle"
+//apply from: "gradle/publishing.gradle"
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion "25.0.2"
+    compileSdkVersion 28
 
     defaultConfig {
         versionCode 1
         versionName "1.0"
         minSdkVersion 16
-        targetSdkVersion 25
+        targetSdkVersion 28
         consumerProguardFile "consumer-proguard-rules.pro"
     }
 
@@ -54,8 +46,8 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_7
-        targetCompatibility JavaVersion.VERSION_1_7
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 
     dexOptions {
@@ -74,32 +66,17 @@ android {
         disable "GradleDependency"
         disable "NewerVersionAvailable"
     }
-
-    testOptions.unitTests {
-        all {
-            jacoco {
-                includeNoLocationClasses = true
-            }
-        }
-    }
-}
-
-// https://github.com/tbroyer/gradle-errorprone-plugin/issues/18
-configurations.all {
-    resolutionStrategy {
-        force "com.google.errorprone:error_prone_core:2.0.5"
-    }
 }
 
 dependencies {
     // Android Support Library for AppCompat
-    compile "com.android.support:appcompat-v7:25.2.0"
+    compile "com.android.support:appcompat-v7:28.0.0"
 
     // Android Support Library for the CardView
-    compile "com.android.support:cardview-v7:25.2.0"
+    compile "com.android.support:cardview-v7:28.0.0"
 
     // Android Support Library for the RecyclerView
-    compile "com.android.support:recyclerview-v7:25.2.0"
+    compile "com.android.support:recyclerview-v7:28.0.0"
 
     // Google Play Services
     compile "com.google.android.gms:play-services-ads:10.2.0"
@@ -110,7 +87,7 @@ dependencies {
     testCompile "junit:junit:4.12"
 
     // Mockito
-    testCompile "org.mockito:mockito-core:2.7.12"
+    testCompile "org.mockito:mockito-core:2.23.4"
 
     // AssertJ
     testCompile "com.android.support:support-annotations:25.2.0"

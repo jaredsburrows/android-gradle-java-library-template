@@ -1,55 +1,42 @@
-// Turn on all warnings and errors
 tasks.withType(JavaCompile) {
-    sourceCompatibility = JavaVersion.VERSION_1_7
-    targetCompatibility = JavaVersion.VERSION_1_7
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
 
-    // Show all warnings except boot classpath
     configure(options) {
-        compilerArgs << "-Xlint:all"            // Turn on all warnings
-        compilerArgs << "-Xlint:-options"       // Turn off "missing" bootclasspath warning
-        compilerArgs << "-Xlint:-path"          // Turn off warning - annotation processing
-        compilerArgs << "-Xlint:-processing"    // Turn off warning about not claiming annotations
-        compilerArgs << "-Werror"               // Turn warnings into errors
-        compilerArgs << "-Xdiags:verbose"       // Turn on verbose errors
-        encoding = "utf-8"
-        incremental = true
+        compilerArgs << '-Xlint:all'
+        compilerArgs << '-Xlint:-options'
+        compilerArgs << '-Werror'
+        encoding = 'utf-8'
         fork = true
     }
 }
 
-// Turn on logging for all tests, filter to show failures/skips only
 tasks.withType(Test) {
+    // Turn on logging for all tests, filter to show failures/skips only
     testLogging {
-        exceptionFormat "full"
+        exceptionFormat 'full'
         showCauses true
         showExceptions true
         showStackTraces true
-        showStandardStreams true
-        events "failed", "skipped"
+        events 'failed', 'skipped'
     }
+
+    failFast = true
+    maxParallelForks = Runtime.runtime.availableProcessors().intdiv(2) ?: 1
 }
 
-// Customize the generated Javadoc
 tasks.withType(Javadoc) {
-    title = project.description
+    title = "${project.name} ${project.version}"
     configure(options) {
-        header = project.description
-        windowTitle = "Documentation"
-        docTitle = "Documentation"
-        bottom = "Copyright &copy; 2011-" + Calendar.getInstance().get(Calendar.YEAR) +
-            ", Burrows Apps, LLC. All Rights Reserved. <a href=\"http://www.burrowsapps.com\" " +
-            "target=\"_blank\">Burrows apps</a>."
-        memberLevel = JavadocMemberLevel.PROTECTED
-        links = ["http://docs.oracle.com/javase/8/docs/api/",
-                 "http://docs.oracle.com/javase/7/docs/api/"]
-        linksOffline "http://d.android.com/reference", "${android.sdkDirectory}/docs/reference"
-        encoding = "utf-8"
-        docEncoding = "utf-8"
-        charSet = "utf-8"
+        header = project.name
+        encoding 'UTF-8'
+        docEncoding 'UTF-8'
+        charSet 'UTF-8'
+        linkSource true
+        author = true
+        links('http://docs.oracle.com/javase/8/docs/api/',
+            'http://docs.oracle.com/javaee/7/api/')
+        exclude "**/*Test.java"
+        if (JavaVersion.current().java8Compatible) addStringOption('Xdoclint:none', '-quiet')
     }
-}
-
-// Prevent forked processes from stealing focus (on MacOS at least)
-tasks.withType(JavaForkOptions) {
-    jvmArgs "-Djava.awt.headless=true"
 }

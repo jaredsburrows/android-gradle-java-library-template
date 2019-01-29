@@ -2,8 +2,6 @@ apply plugin: "pmd"
 apply plugin: "jacoco"
 apply plugin: "findbugs"
 apply plugin: "checkstyle"
-apply plugin: "build-dashboard"
-apply plugin: "com.github.kt3k.coveralls"
 
 // Creates tasks based on the application build variant (productFlavor + buildType = variant)
 android.libraryVariants.all { variant ->
@@ -93,9 +91,4 @@ android.libraryVariants.all { variant ->
         source = files(android.sourceSets.main.java.srcDirs)
         classpath = files(configurations.compile.files)
     }
-}
-
-// Only allows specifying of a single file
-coveralls {
-    jacocoReportPath = "${buildDir}/reports/jacoco/jacocoDebugReport/jacocoDebugReport.xml"
 }
